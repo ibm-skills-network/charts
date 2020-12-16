@@ -1,7 +1,7 @@
 apiVersion: v2
 name: pontoon
 home: https://github.com/mozilla/pontoon
-version: 1.0.1
+version: 1.0.2
 # Pontoon no longer cuts releases.
 # See https://github.com/mozilla/pontoon/releases/tag/2018-12-19
 appVersion: latest
