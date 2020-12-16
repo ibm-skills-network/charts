@@ -1,0 +1,14 @@
+{{ if .Values.extraSettingsModule }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ include "pontoon.fullname" . }}-settings-configmap"
+  labels:
+    app: {{ include "pontoon.fullname" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+data:
+  custom.py:
+  {{- toYaml .Values.extraSettingsModule | indent 2 }}
+{{- end }}

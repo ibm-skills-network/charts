@@ -1,0 +1,146 @@
+# Default values for pontoon.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+nameOverride: ""
+fullnameOverride: ""
+
+siteUrl: ""
+secretKey: ""
+pontoonHome: "/app"
+
+# Recommended production settings
+defaultEnvVars:
+  - name: CELERY_ALWAYS_EAGER
+    value: "False"
+  - name: DJANGO_DEBUG
+    value: "False"
+  - name: DJANGO_DEV
+    value: "False"
+extraEnvVars: []
+extraSettingsModule: ""
+# mount under pontoon/settings/custom.py
+# Which can be used to override the default configuration
+#  from .base import *
+#  BROKER_LOGIN_METHOD = "PLAIN"
+#  DATABASES["default"]["OPTIONS"]["sslmode"] = "allow"
+
+ssh:
+  # privateKeys is a dictionary of private key name and base64-encoded string
+  # config is e base64-encoded string
+  #
+  ## How to get base64-encoded string?
+  ## echo "~/.ssh/id_rsa" | base64 | pbcopy
+  ## echo "~/.ssh/config" | base64 | pbcopy
+  ##
+  ## Example:
+  ## privateKeys:
+  ##   id_rsa_1: <some_base64_encoded_ssh_private_key>
+  ##   id_rsa_2: <some_base64_encoded_ssh_private_key
+  ## config: <base64_encoded_ssh_config>
+  privateKeys: {}
+  config: ""
+  mountPath: "/home/pontoon/.ssh"
+
+replicaCount: 1
+image:
+  repository: skillsnetwork/pontoon
+  pullPolicy: IfNotPresent
+  tag: "7a9fb1a"
+
+worker:
+  enabled: true
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+
+# Schedule job to sync projects with external VCS
+# https://mozilla-pontoon.readthedocs.io/en/latest/admin/deployment.html#scheduled-jobs
+syncProjectCronjob:
+  schedule: "@every 30m"
+  suspend: false
+  successfulJobsHistoryLimit: 10
+  failedJobsHistoryLimit: 10
+  resources: {}
+
+postgres:
+  databaseUrl: ""
+
+rabbitmq:
+  url: ""
+
+imagePullSecrets: []
+# A list of imagePullSecrets
+# `create` indicates whether it is an existing secrets
+# or a new secret should be created
+#  - name: dockerhub
+#    create: true
+#    url: ""https://index.docker.io/v1/"
+#    username: "username"
+#    password: "password"
+#  - name: more
+#    create: false
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  servicename:
+  type: ClusterIP
+  port: 8000
+  externalPort: 8000
+
+ingress:
+  enabled: false
+  routerPath: "/"
+  labels: {}
+  annotations: {}
+  hosts: []
+  tls: []
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

@@ -1,0 +1,63 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: '{{ include "pontoon.fullname" . }}-migration-job-{{ randAlphaNum 4 | lower }}'
+  labels:
+    app: {{ include "pontoon.fullname" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+    component: "pontoon-migration-job"
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  backoffLimit: 10
+  template:
+    metadata:
+      name: '{{ include "pontoon.fullname" . }}-migration-job'
+      labels:
+        app: {{ include "pontoon.fullname" . }}
+        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+        heritage: {{ .Release.Service }}
+        release: {{ .Release.Name }}
+        component: "pontoon-migration-job"
+    spec:
+      imagePullSecrets:
+        {{- range .Values.imagePullSecrets }}
+        - name: {{ .name | quote }}
+      {{- end }}
+      serviceAccountName: {{ include "pontoon.serviceAccountName" . }}
+      restartPolicy: Never
+      containers:
+        - name: pontoon-migration
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            - secretRef:
+                name: "{{ include "pontoon.fullname" . }}-secrets"
+          command: ["python"]
+          args: ["manage.py", "migrate"]
+          env:
+            - name: SITE_URL
+              value: {{ .Values.siteUrl | quote }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.defaultEnvVars "context" $) | nindent 12 }}
+            {{- if .Values.extraSettingsModule }}
+            - name: DJANGO_SETTINGS_MODULE
+              value: "pontoon.settings.custom"
+            {{- end }}
+            {{- if .Values.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+            {{- if .Values.extraSettingsModule }}
+            - mountPath: "{{ .Values.pontoonHome }}/pontoon/settings/custom.py"
+              name: "pontoon-settings"
+              subPath: "custom.py"
+            {{- end }}
+      volumes:
+        {{- if .Values.extraSettingsModule }}
+        - name: "pontoon-settings"
+          configMap:
+            name: "{{ include "pontoon.fullname" . }}-settings-configmap"
+        {{- end }}

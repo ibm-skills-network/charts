@@ -1,0 +1,127 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "pontoon.fullname" . }}
+  labels:
+    app: {{ include "pontoon.fullname" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+    component: "pontoon"
+spec:
+{{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+{{- end }}
+  selector:
+    matchLabels:
+      app: {{ include "pontoon.fullname" . }}
+      heritage: {{ .Release.Service }}
+      release: {{ .Release.Name }}
+      component: "pontoon"
+  template:
+    metadata:
+      annotations:
+        checksum/pontoon-secrets: {{ include (print $.Template.BasePath "/pontoon-secrets.yaml") . | sha256sum }}
+        checksum/pontoon-ssh-secrets: {{ include (print $.Template.BasePath "/pontoon-ssh-secrets.yaml") . | sha256sum }}
+        checksum/pontoon-settings: {{ include (print $.Template.BasePath "/pontoon-settings-configmap.yaml") . | sha256sum }}
+        {{- range $key, $value := .Values.podAnnotations }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+      labels:
+        app: {{ include "pontoon.fullname" . }}
+        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+        heritage: {{ .Release.Service }}
+        release: {{ .Release.Name }}
+        component: "pontoon"
+    spec:
+      imagePullSecrets:
+      {{- range .Values.imagePullSecrets }}
+        - name: {{ .name | quote }}
+      {{- end }}
+      serviceAccountName: {{ include "pontoon.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if or .Values.ssh.config .Values.ssh.privateKeys }}
+      initContainers:
+        - name: copy-ssh-secrets
+          image: "busybox"
+          command:
+            - "cp"
+            - "-r"
+            - "/ssh-data/."
+            - {{ .Values.ssh.mountPath | quote }}
+          volumeMounts:
+            - mountPath: {{ .Values.ssh.mountPath | quote }}
+              name: "dummy-volume"
+            - mountPath: "/ssh-data"
+              name: "pontoon-ssh"
+      {{- end }}
+      containers:
+        - name: pontoon
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          command: ["gunicorn"]
+          args:
+            - "pontoon.wsgi:application"
+            - "--bind=0.0.0.0"
+          # TODO - add livenessProbe and readinessProbe
+          # Pontoon does not seem to have a health check endpoint...
+          # Maybe consider adding one to upstream
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          envFrom:
+            - secretRef:
+                name: "{{ include "pontoon.fullname" . }}-secrets"
+          env:
+            - name: SITE_URL
+              value: {{ .Values.siteUrl | quote }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.defaultEnvVars "context" $) | nindent 12 }}
+            {{- if .Values.extraSettingsModule }}
+            - name: DJANGO_SETTINGS_MODULE
+              value: "pontoon.settings.custom"
+            {{- end }}
+            {{- if .Values.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+            {{- if .Values.extraSettingsModule }}
+            - mountPath: "{{ .Values.pontoonHome }}/pontoon/settings/custom.py"
+              name: "pontoon-settings"
+              subPath: "custom.py"
+            {{- end }}
+            {{- if or .Values.ssh.config .Values.ssh.privateKeys }}
+            - name: "dummy-volume"
+              mountPath: {{ .Values.ssh.mountPath | quote }}
+            {{- end }}
+      volumes:
+        {{- if .Values.extraSettingsModule }}
+        - name: "pontoon-settings"
+          configMap:
+            name: "{{ include "pontoon.fullname" . }}-settings-configmap"
+        {{- end }}
+        {{- if or .Values.ssh.config .Values.ssh.privateKeys }}
+        - name: "pontoon-ssh"
+          secret:
+            secretName: "{{ include "pontoon.fullname" . }}-ssh-secrets"
+            defaultMode: 420 # 0644
+        - name: "dummy-volume"
+          emptyDir: {}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

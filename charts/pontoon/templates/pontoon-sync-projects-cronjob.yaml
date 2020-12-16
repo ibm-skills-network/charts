@@ -1,0 +1,111 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ include "pontoon.fullname" . }}-sync-projects-cronjob
+  labels:
+    app: {{ include "pontoon.fullname" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+    component: "pontoon-sync-projects-cronjob"
+spec:
+  schedule: {{ .Values.syncProjectCronjob.schedule | quote }}
+  suspend: {{ .Values.syncProjectCronjob.suspend }}
+  successfulJobsHistoryLimit: {{ .Values.syncProjectCronjob.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.syncProjectCronjob.failedJobsHistoryLimit }}
+  jobTemplate:
+    metadata:
+      labels:
+        app: {{ include "pontoon.fullname" . }}
+        chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+        heritage: {{ .Release.Service }}
+        release: {{ .Release.Name }}
+        component: "pontoon-sync-projects-cronjob"
+    spec:
+      template:
+        spec:
+          imagePullSecrets:
+          {{- range .Values.imagePullSecrets }}
+            - name: {{ .name | quote }}
+          {{- end }}
+          serviceAccountName: {{ include "pontoon.serviceAccountName" . }}
+          securityContext:
+            {{- toYaml .Values.podSecurityContext | nindent 12 }}
+          restartPolicy: OnFailure
+          {{- if or .Values.ssh.config .Values.ssh.privateKeys }}
+          initContainers:
+            - name: copy-ssh-secrets
+              image: "busybox"
+              command:
+                - "cp"
+                - "-r"
+                - "/ssh-data/."
+                - {{ .Values.ssh.mountPath | quote }}
+              volumeMounts:
+                - mountPath: {{ .Values.ssh.mountPath | quote }}
+                  name: "dummy-volume"
+                - mountPath: "/ssh-data"
+                  name: "pontoon-ssh"
+          {{- end }}
+          containers:
+            - name: sync-projects
+              securityContext:
+                {{- toYaml .Values.securityContext | nindent 16 }}
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              command: ["python"]
+              args:
+                - "manage.py"
+                - "sync_projects"
+              resources:
+                {{- toYaml .Values.syncProjectCronjob.resources | nindent 16 }}
+              envFrom:
+                - secretRef:
+                    name: "{{ include "pontoon.fullname" . }}-secrets"
+              env:
+                - name: SITE_URL
+                  value: {{ .Values.siteUrl | quote }}
+                {{- include "common.tplvalues.render" (dict "value" .Values.defaultEnvVars "context" $) | nindent 16 }}
+                {{- if .Values.extraSettingsModule }}
+                - name: DJANGO_SETTINGS_MODULE
+                  value: "pontoon.settings.custom"
+                {{- end }}
+                {{- if .Values.extraEnvVars }}
+                {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 16 }}
+                {{- end }}
+              volumeMounts:
+                {{- if .Values.extraSettingsModule }}
+                - mountPath: "{{ .Values.pontoonHome }}/pontoon/settings/custom.py"
+                  name: "pontoon-settings"
+                  subPath: "custom.py"
+                {{- end }}
+                {{- if or .Values.ssh.config .Values.ssh.privateKeys }}
+                - name: "dummy-volume"
+                  mountPath: {{ .Values.ssh.mountPath | quote }}
+                {{- end }}
+          volumes:
+            {{- if .Values.extraSettingsModule }}
+            - name: "pontoon-settings"
+              configMap:
+                name: "{{ include "pontoon.fullname" . }}-settings-configmap"
+            {{- end }}
+            {{- if or .Values.ssh.config .Values.ssh.privateKeys }}
+            - name: "pontoon-ssh"
+              secret:
+                secretName: "{{ include "pontoon.fullname" . }}-ssh-secrets"
+                defaultMode: 420 # 0644
+            - name: "dummy-volume"
+              emptyDir: {}
+            {{- end }}
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
