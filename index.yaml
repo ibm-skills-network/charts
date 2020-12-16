@@ -1,0 +1,21 @@
+apiVersion: v1
+entries:
+  pontoon:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2020-12-16T04:55:14.265525194Z"
+    description: A Helm chart for Pontoon, a Mozilla's Localization Platform.
+    digest: 54838e798a57f9e4ef556d2198594a582cb4238f656b32dfc4c209cda2bef8ef
+    home: https://github.com/mozilla/pontoon
+    icon: https://pontoon.mozilla.org/static/img/logo.svg
+    keywords:
+    - i18n
+    - pontoon
+    name: pontoon
+    sources:
+    - https://github.com/mozilla/pontoon
+    type: application
+    urls:
+    - https://github.com/ibm-skills-network/charts/releases/download/pontoon-1.0.2/pontoon-1.0.2.tgz
+    version: 1.0.2
+generated: "2020-12-16T04:55:13.898354338Z"
