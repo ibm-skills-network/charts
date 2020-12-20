@@ -52,7 +52,7 @@ image:
   repository: skillsnetwork/pontoon
   pullPolicy: IfNotPresent
   # Look for the latest tag at https://hub.docker.com/repository/docker/skillsnetwork/pontoon
-  tag: "7a9fb1a"
+  tag: "db4dd60"
 
 worker:
   enabled: true
