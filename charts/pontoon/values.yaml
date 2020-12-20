@@ -6,8 +6,10 @@ nameOverride: ""
 fullnameOverride: ""
 
 siteUrl: ""
-secretKey: ""
+secretKey: "supersecretkeychangeme" # change me
 pontoonHome: "/app"
+
+forceSsl: true
 
 # Recommended production settings
 defaultEnvVars:
@@ -18,12 +20,15 @@ defaultEnvVars:
   - name: DJANGO_DEV
     value: "False"
 extraEnvVars: []
+
+# NOTE: This should be a multiline value
+# A valid Python script that mounts at pontoon/settings/custom.py
+# Which can be used to override the default Django settings pontoon/settings/base.py
+# https://github.com/mozilla/pontoon/blob/master/pontoon/settings/base.py
 extraSettingsModule: ""
-# mount under pontoon/settings/custom.py
-# Which can be used to override the default configuration
-#  from .base import *
-#  BROKER_LOGIN_METHOD = "PLAIN"
-#  DATABASES["default"]["OPTIONS"]["sslmode"] = "allow"
+##  from .base import *
+##  BROKER_LOGIN_METHOD = "PLAIN"
+##  DATABASES["default"]["OPTIONS"]["sslmode"] = "allow"
 
 ssh:
   # privateKeys is a dictionary of private key name and base64-encoded string
@@ -46,6 +51,7 @@ replicaCount: 1
 image:
   repository: skillsnetwork/pontoon
   pullPolicy: IfNotPresent
+  # Look for the latest tag at https://hub.docker.com/repository/docker/skillsnetwork/pontoon
   tag: "7a9fb1a"
 
 worker:
@@ -66,10 +72,24 @@ syncProjectCronjob:
   failedJobsHistoryLimit: 10
   resources: {}
 
+# Configuration values for the postgres dependency
+# ref: https://github.com/bitnami/charts/blob/master/bitnami/postgresql/README.md
+#
 postgres:
+  enabled: false
+  postgresqlUsername: "postgres"
+  postgresqlDatabase: "pontoon"
+  # If NOT using the PostgreSQL in this chart (postgres.enabled=false), 
+  # you must specify a custom databasUrl here or pontoon won't work
   databaseUrl: ""
 
+# Configuration values for the rabbitmq dependency
+# ref: https://github.com/bitnami/charts/blob/master/bitnami/rabbitmq/README.md
+#
 rabbitmq:
+  enabled: false
+  auth:
+    username: "pontoon"
   url: ""
 
 imagePullSecrets: []
@@ -117,8 +137,18 @@ ingress:
   routerPath: "/"
   labels: {}
   annotations: {}
+    # Ingress annotations
+    # external-dns.alpha.kubernetes.io/hostname: "pontoon.example.com"
+    # external-dns.alpha.kubernetes.io/target: "ingress.hostname"
+    # cert-manager.io/cluster-issuer: acme-issuer
+    # acme.cert-manager.io/http01-edit-in-place: "true"
   hosts: []
+    # - "pontoon.example.com"
   tls: []
+  # - hosts:
+  #   - "pontoon.example.com"
+  #   secretName: "tls-cert-secret"
+
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

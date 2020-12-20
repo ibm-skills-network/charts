@@ -24,6 +24,7 @@ spec:
         checksum/pontoon-secrets: {{ include (print $.Template.BasePath "/pontoon-secrets.yaml") . | sha256sum }}
         checksum/pontoon-ssh-secrets: {{ include (print $.Template.BasePath "/pontoon-ssh-secrets.yaml") . | sha256sum }}
         checksum/pontoon-settings: {{ include (print $.Template.BasePath "/pontoon-settings-configmap.yaml") . | sha256sum }}
+        checksum/pontoon-unsafe-wsgi: {{ include (print $.Template.BasePath "/pontoon-unsafe-wsgi-configmap.yaml") . | sha256sum }}
         {{- range $key, $value := .Values.podAnnotations }}
         {{ $key }}: {{ $value | quote }}
         {{- end }}
@@ -89,6 +90,8 @@ spec:
             {{- if .Values.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 12 }}
             {{- end }}
+            {{- include "pontoon.database_url" . | indent 12 }}
+            {{- include "pontoon.rabbitmq_url" . | indent 12 }}
           volumeMounts:
             {{- if .Values.extraSettingsModule }}
             - mountPath: "{{ .Values.pontoonHome }}/pontoon/settings/custom.py"
@@ -98,6 +101,11 @@ spec:
             {{- if or .Values.ssh.config .Values.ssh.privateKeys }}
             - name: "dummy-volume"
               mountPath: {{ .Values.ssh.mountPath | quote }}
+            {{- end }}
+            {{- if not .Values.forceSsl }}
+            - mountPath: "{{ .Values.pontoonHome }}/pontoon/wsgi.py"
+              name: "pontoon-wsgi"
+              subPath: "wsgi.py"
             {{- end }}
       volumes:
         {{- if .Values.extraSettingsModule }}
@@ -112,6 +120,11 @@ spec:
             defaultMode: 420 # 0644
         - name: "dummy-volume"
           emptyDir: {}
+        {{- end }}
+        {{- if not .Values.forceSsl }}
+        - name: "pontoon-wsgi"
+          configMap:
+            name: "{{ include "pontoon.fullname" . }}-unsafe-wsgi-configmap"
         {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

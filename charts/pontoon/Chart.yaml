@@ -1,7 +1,7 @@
 apiVersion: v2
 name: pontoon
 home: https://github.com/mozilla/pontoon
-version: 1.0.2
+version: 1.1.0
 # Pontoon no longer cuts releases.
 # See https://github.com/mozilla/pontoon/releases/tag/2018-12-19
 appVersion: latest
@@ -12,4 +12,15 @@ keywords:
   - pontoon
 sources:
   - https://github.com/mozilla/pontoon
+  - https://github.com/ibm-skills-network/charts
 icon: https://pontoon.mozilla.org/static/img/logo.svg
+dependencies:
+  - name: postgresql
+    version: 10.2.0
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgres.enabled
+    alias: postgres
+  - name: rabbitmq
+    version: 8.6.0
+    repository: https://charts.bitnami.com/bitnami
+    condition: rabbitmq.enabled

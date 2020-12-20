@@ -61,6 +61,38 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
+{{- define "postgres.fullname" -}}
+{{- printf "%s-%s" .Release.Name "postgres" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{- define "rabbitmq.fullname" -}}
+{{- printf "%s-%s" .Release.Name "rabbitmq" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{- define "pontoon.database_url" -}}
+{{- if .Values.postgres.enabled }}
+- name: DATABASE_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      key: postgresql-password
+      name: {{ include "postgres.fullname" . }}
+- name: DATABASE_URL
+  value: "{{ printf "postgres://%s:$(DATABASE_PASSWORD)@%s/%s" .Values.postgres.postgresqlUsername  (include "postgres.fullname" .) .Values.postgres.postgresqlDatabase }}"
+{{- end }}
+{{- end }}
+
+{{- define "pontoon.rabbitmq_url" -}}
+{{- if .Values.postgres.enabled }}
+- name: RABBITMQ_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      key: rabbitmq-password
+      name: {{ include "rabbitmq.fullname" . }}
+- name: RABBITMQ_URL
+  value: "{{ printf "amqp://%s:$(RABBITMQ_PASSWORD)@%s-headless/" .Values.rabbitmq.auth.username  (include "rabbitmq.fullname" .) }}"
+{{- end }}
+{{- end }}
+
 {{/* vim: set filetype=mustache: */}}
 {{/*
 Renders a value that contains template.

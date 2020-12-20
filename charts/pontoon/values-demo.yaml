@@ -1,0 +1,44 @@
+# Default Production-ish values for pontoon, if you are looking to try it out locally.
+# DO NOT USE IN PRODUCTION
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Disable strict SSL such that the server can work without a valid TLS certificate
+forceSsl: false
+
+worker:
+  enabled: true
+
+syncProjectCronjob:
+  suspend: false
+
+postgres:
+  enabled: true
+  postgresqlUsername: "postgres"
+  postgresqlDatabase: "pontoon"
+  postgresqlPassword: "ramdompassword" # change me
+  postgresqlPostgresPassword: "ramdompassword" # change me
+
+rabbitmq:
+  enabled: true
+  auth:
+    password: "randompassword" # change me
+    erlangCookie: "randomsecret" # change me
+
+defaultEnvVars:
+  - name: CELERY_ALWAYS_EAGER
+    value: "False"
+  - name: DJANGO_DEBUG
+    value: "False"
+  - name: DJANGO_DEV
+    value: "False"
+
+extraEnvVars:
+  - name: ALLOWED_HOSTS
+    value: "*"
+
+extraSettingsModule: |-
+  from .base import *
+  DATABASES["default"]["OPTIONS"] = {}
+  DATABASES["default"]["OPTIONS"]["sslmode"] = "allow"
+  SECURE_SSL_REDIRECT = False

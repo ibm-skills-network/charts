@@ -73,6 +73,8 @@ spec:
                 {{- if .Values.extraEnvVars }}
                 {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 16 }}
                 {{- end }}
+                {{- include "pontoon.database_url" . | indent 16 }}
+                {{- include "pontoon.rabbitmq_url" . | indent 16 }}
               volumeMounts:
                 {{- if .Values.extraSettingsModule }}
                 - mountPath: "{{ .Values.pontoonHome }}/pontoon/settings/custom.py"
