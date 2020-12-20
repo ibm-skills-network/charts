@@ -11,6 +11,10 @@ pontoonHome: "/app"
 
 forceSsl: true
 
+gunicornArgs:
+  - "pontoon.wsgi:application"
+  - "--bind=0.0.0.0"
+
 # Recommended production settings
 defaultEnvVars:
   - name: CELERY_ALWAYS_EAGER
@@ -57,6 +61,13 @@ image:
 worker:
   enabled: true
   replicaCount: 1
+  celeryArgs:
+    - "worker"
+    - "--app=pontoon.base.celeryapp"
+    - "--loglevel=info"
+    - "--without-gossip"
+    - "--without-mingle"
+    - "--without-heartbeat"
   autoscaling:
     enabled: false
     minReplicas: 1

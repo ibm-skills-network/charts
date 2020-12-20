@@ -64,7 +64,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["celery"]
-          args: ["worker", "--app=pontoon.base.celeryapp", "--loglevel=info", "--without-gossip", "--without-mingle", "--without-heartbeat"]
+          args: {{- toYaml .Values.worker.celeryArgs | nindent 12 }}
           resources:
           {{- toYaml .Values.resources | nindent 12 }}
           envFrom:

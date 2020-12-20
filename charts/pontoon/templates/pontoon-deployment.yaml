@@ -68,9 +68,7 @@ spec:
               containerPort: 8000
               protocol: TCP
           command: ["gunicorn"]
-          args:
-            - "pontoon.wsgi:application"
-            - "--bind=0.0.0.0"
+          args: {{- toYaml .Values.gunicornArgs | nindent 12 }}
           # TODO - add livenessProbe and readinessProbe
           # Pontoon does not seem to have a health check endpoint...
           # Maybe consider adding one to upstream
