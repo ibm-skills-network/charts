@@ -25,9 +25,9 @@ spec:
         checksum/pontoon-secrets: {{ include (print $.Template.BasePath "/pontoon-secrets.yaml") . | sha256sum }}
         checksum/pontoon-ssh-secrets: {{ include (print $.Template.BasePath "/pontoon-ssh-secrets.yaml") . | sha256sum }}
         checksum/pontoon-settings: {{ include (print $.Template.BasePath "/pontoon-settings-configmap.yaml") . | sha256sum }}
-        {{- range $key, $value := .Values.podAnnotations }}
+        {{- range $key, $value := .Values.worker.podAnnotations }}
         {{ $key }}: {{ $value | quote }}
-      {{- end }}
+        {{- end }}
       labels:
         app: {{ include "pontoon.fullname" . }}
         chart: {{ .Chart.Name }}-{{ .Chart.Version }}
@@ -41,7 +41,7 @@ spec:
       {{- end }}
       serviceAccountName: {{ include "pontoon.serviceAccountName" . }}
       securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+        {{- toYaml .Values.worker.podSecurityContext | nindent 8 }}
       {{- if or .Values.ssh.config .Values.ssh.privateKeys }}
       initContainers:
         - name: copy-ssh-secrets
@@ -60,13 +60,13 @@ spec:
       containers:
         - name: pontoon-worker
           securityContext:
-          {{- toYaml .Values.securityContext | nindent 12 }}
+          {{- toYaml .Values.worker.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["celery"]
           args: {{- toYaml .Values.worker.celeryArgs | nindent 12 }}
           resources:
-          {{- toYaml .Values.resources | nindent 12 }}
+          {{- toYaml .Values.worker.resources | nindent 12 }}
           envFrom:
             - secretRef:
                 name: "{{ include "pontoon.fullname" . }}-secrets"
@@ -107,15 +107,15 @@ spec:
         - name: "dummy-volume"
           emptyDir: {}
       {{- end }}
-      {{- with .Values.nodeSelector }}
+      {{- with .Values.worker.nodeSelector }}
       nodeSelector:
       {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
+      {{- with .Values.worker.affinity }}
       affinity:
       {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.tolerations }}
+      {{- with .Values.worker.tolerations }}
       tolerations:
       {{- toYaml . | nindent 8 }}
   {{- end }}

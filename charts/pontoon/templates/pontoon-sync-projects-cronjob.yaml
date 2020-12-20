@@ -21,6 +21,10 @@ spec:
         heritage: {{ .Release.Service }}
         release: {{ .Release.Name }}
         component: "pontoon-sync-projects-cronjob"
+      annotations:
+        {{- range $key, $value := .Values.syncProjectCronjob.podAnnotations }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
     spec:
       template:
         spec:
@@ -30,7 +34,7 @@ spec:
           {{- end }}
           serviceAccountName: {{ include "pontoon.serviceAccountName" . }}
           securityContext:
-            {{- toYaml .Values.podSecurityContext | nindent 12 }}
+            {{- toYaml .Values.syncProjectCronjob.podSecurityContext | nindent 12 }}
           restartPolicy: OnFailure
           {{- if or .Values.ssh.config .Values.ssh.privateKeys }}
           initContainers:
@@ -50,7 +54,7 @@ spec:
           containers:
             - name: sync-projects
               securityContext:
-                {{- toYaml .Values.securityContext | nindent 16 }}
+                {{- toYaml .Values.syncProjectCronjob.securityContext | nindent 16 }}
               image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
               imagePullPolicy: {{ .Values.image.pullPolicy }}
               command: ["python"]
@@ -99,15 +103,15 @@ spec:
             - name: "dummy-volume"
               emptyDir: {}
             {{- end }}
-          {{- with .Values.nodeSelector }}
+          {{- with .Values.syncProjectCronjob.nodeSelector }}
           nodeSelector:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.affinity }}
+          {{- with .Values.syncProjectCronjob.affinity }}
           affinity:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.tolerations }}
+          {{- with .Values.syncProjectCronjob.tolerations }}
           tolerations:
             {{- toYaml . | nindent 12 }}
           {{- end }}

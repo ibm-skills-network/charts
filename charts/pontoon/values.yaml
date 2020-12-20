@@ -68,6 +68,13 @@ worker:
     - "--without-gossip"
     - "--without-mingle"
     - "--without-heartbeat"
+  podAnnotations: {}
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podSecurityContext: {}
+  securityContext: {}
   autoscaling:
     enabled: false
     minReplicas: 1
@@ -81,7 +88,13 @@ syncProjectCronjob:
   suspend: false
   successfulJobsHistoryLimit: 10
   failedJobsHistoryLimit: 10
+  podAnnotations: {}
   resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podSecurityContext: {}
+  securityContext: {}
 
 # Configuration values for the postgres dependency
 # ref: https://github.com/bitnami/charts/blob/master/bitnami/postgresql/README.md
