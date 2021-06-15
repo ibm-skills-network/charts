@@ -22,6 +22,12 @@ spec:
         heritage: {{ .Release.Service }}
         release: {{ .Release.Name }}
         component: "pontoon-migration-job"
+      {{- if .Values.podAnnotations }}
+      annotations:
+        {{- range $key, $value := .Values.podAnnotations }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+      {{- end }}
     spec:
       imagePullSecrets:
         {{- range .Values.imagePullSecrets }}
