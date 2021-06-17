@@ -35,6 +35,12 @@ spec:
       {{- end }}
       serviceAccountName: {{ include "pontoon.serviceAccountName" . }}
       restartPolicy: Never
+      {{- if .Values.migrationJob.initContainers }}
+      initContainers:
+        {{- if .Values.migrationJob.initContainers }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.migrationJob.initContainers "context" $) | nindent 8 }}
+        {{- end }}
+      {{- end }}
       containers:
         - name: pontoon-migration
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -42,8 +48,13 @@ spec:
           envFrom:
             - secretRef:
                 name: "{{ include "pontoon.fullname" . }}-secrets"
+          {{- if or .Values.migrationJob.command .Values.migrationJob.args }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.migrationJob.command "context" $) | nindent 10 }}
+          args: {{- include "common.tplvalues.render" (dict "value" .Values.migrationJob.args "context" $) | nindent 10 }}
+          {{- else }}
           command: ["python"]
           args: ["manage.py", "migrate"]
+          {{- end }}
           env:
             - name: SITE_URL
               value: {{ .Values.siteUrl | quote }}
@@ -63,9 +74,15 @@ spec:
               name: "pontoon-settings"
               subPath: "custom.py"
             {{- end }}
+            {{- if .Values.migrationJob.extraVolumeMounts }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.migrationJob.extraVolumeMounts "context" $) | nindent 12 }}
+            {{- end }}
       volumes:
         {{- if .Values.extraSettingsModule }}
         - name: "pontoon-settings"
           configMap:
             name: "{{ include "pontoon.fullname" . }}-settings-configmap"
+        {{- end }}
+        {{- if .Values.migrationJob.extraVolumes }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.migrationJob.extraVolumes "context" $) | nindent 8 }}
         {{- end }}
