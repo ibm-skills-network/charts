@@ -2,7 +2,9 @@
 {{- $serviceName := include "pontoon.fullname" . -}}
 {{- $servicePort := .Values.service.externalPort -}}
 {{- $ingressName := default ( include "pontoon.fullname" . ) .Values.ingress.name -}}
-{{- if semverCompare ">=v1.14.0-0" .Capabilities.KubeVersion.GitVersion }}
+{{- if and (.Capabilities.APIVersions.Has "networking.k8s.io/v1") (semverCompare ">= 1.19.x" .Capabilities.KubeVersion.Version) -}}
+apiVersion: networking.k8s.io/v1
+{{- else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" -}}
 apiVersion: networking.k8s.io/v1beta1
 {{- else }}
 apiVersion: extensions/v1beta1
@@ -34,9 +36,18 @@ spec:
     http:
       paths:
         - path: {{ $.Values.ingress.routerPath }}
+          {{- if $.Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" }}
+          pathType: {{ $.Values.ingress.pathType }}
+          backend:
+            service:
+              name: {{ $serviceName }}
+              port: 
+                number: {{ $servicePort }}
+          {{- else }}
           backend:
             serviceName: {{ $serviceName }}
             servicePort: {{ $servicePort }}
+          {{- end }}
   {{- end -}}
 {{- end -}}
 {{- end -}}

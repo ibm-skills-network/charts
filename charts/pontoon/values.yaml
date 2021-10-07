@@ -176,6 +176,7 @@ service:
 ingress:
   enabled: false
   routerPath: "/"
+  pathType: "ImplementationSpecific"
   labels: {}
   annotations: {}
     # Ingress annotations
