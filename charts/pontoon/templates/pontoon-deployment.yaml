@@ -45,7 +45,8 @@ spec:
       {{- if or .Values.ssh.config .Values.ssh.privateKeys }}
       initContainers:
         - name: copy-ssh-secrets
-          image: "busybox"
+          image: "{{ .Values.ssh.image.repository }}:{{ .Values.ssh.image.tag }}"
+          imagePullPolicy: {{ .Values.ssh.image.pullPolicy }}
           command:
             - "cp"
             - "-r"

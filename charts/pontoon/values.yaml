@@ -51,6 +51,11 @@ ssh:
   config: ""
   mountPath: "/home/pontoon/.ssh"
 
+  image:
+    repository: busybox
+    pullPolicy: IfNotPresent
+    tag: "latest"
+
 replicaCount: 1
 image:
   repository: skillsnetwork/pontoon
