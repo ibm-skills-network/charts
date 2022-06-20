@@ -1,14 +1,12 @@
 dependencies:
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
-  version: 10.13.15
+  version: 11.6.7
 - name: rabbitmq
   repository: https://charts.bitnami.com/bitnami
-  version: 8.24.12
+  version: 10.1.8
 - name: common
   repository: https://charts.bitnami.com/bitnami
-  version: 1.11.1
-digest: sha256:d33ea4d170681befc27a0d7eeaa30ab92c39d0abae2397112342af15a527f9d4
-generated: "2022-02-02T19:16:06.210491-05:00"
-
-
+  version: 1.16.0
+digest: sha256:0739dae2407477953ff9dc02d6c3fc80993ed6d66d72f7637b5904c63b09c77f
+generated: "2022-06-20T16:26:15.598086-04:00"
