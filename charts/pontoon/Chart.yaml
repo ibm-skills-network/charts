@@ -17,7 +17,7 @@ sources:
 icon: https://pontoon.mozilla.org/static/img/logo.svg
 dependencies:
   - name: postgresql
-    version: 11.6.9
+    version: 11.6.10
     repository: https://charts.bitnami.com/bitnami
     condition: postgres.enabled
     alias: postgres
