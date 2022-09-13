@@ -9,6 +9,7 @@ metadata:
     release: {{ .Release.Name }}
     component: "pontoon-sync-projects-cronjob"
 spec:
+  concurrencyPolicy: {{ .Values.syncProjectCronjob.concurrencyPolicy | quote }}
   schedule: {{ .Values.syncProjectCronjob.schedule | quote }}
   suspend: {{ .Values.syncProjectCronjob.suspend }}
   successfulJobsHistoryLimit: {{ .Values.syncProjectCronjob.successfulJobsHistoryLimit }}

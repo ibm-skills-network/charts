@@ -89,6 +89,7 @@ worker:
 # Schedule job to sync projects with external VCS
 # https://mozilla-pontoon.readthedocs.io/en/latest/admin/deployment.html#scheduled-jobs
 syncProjectCronjob:
+  concurrencyPolicy: Allow
   schedule: "@every 30m"
   suspend: false
   successfulJobsHistoryLimit: 10
@@ -125,7 +126,7 @@ postgres:
   enabled: false
   postgresqlUsername: "postgres"
   postgresqlDatabase: "pontoon"
-  # If NOT using the PostgreSQL in this chart (postgres.enabled=false), 
+  # If NOT using the PostgreSQL in this chart (postgres.enabled=false),
   # you must specify a custom databasUrl here or pontoon won't work
   databaseUrl: ""
 
