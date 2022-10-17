@@ -86,7 +86,6 @@ spec:
             {{- if .Values.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 12 }}
             {{- include "pontoon.database_url" . | indent 12 }}
-            {{- include "pontoon.rabbitmq_url" . | indent 12 }}
           {{- end }}
           volumeMounts:
             {{- if .Values.extraSettingsModule }}
