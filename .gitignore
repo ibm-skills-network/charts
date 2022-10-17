@@ -1,0 +1,15 @@
+# Created by https://www.gitignore.io/api/helm
+# Edit at https://www.gitignore.io/?templates=helm
+
+# OSX trash
+.DS_Store
+
+### Helm ###
+# Chart dependencies
+**/charts/*.tgz
+
+# End of https://www.gitignore.io/api/helm
+
+helm-chart-releases/
+
+.vscode/*
