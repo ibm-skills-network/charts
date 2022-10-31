@@ -34,6 +34,7 @@ spec:
             chart: {{ .Chart.Name }}-{{ .Chart.Version }}
             heritage: {{ .Release.Service }}
             release: {{ .Release.Name }}
+            networking/allow-redis-access: "true"
             component: "pontoon-sync-projects-cronjob"
           annotations:
             {{- range $key, $value := .Values.syncProjectCronjob.podAnnotations }}
@@ -95,11 +96,13 @@ spec:
                 - name: DJANGO_SETTINGS_MODULE
                   value: "pontoon.settings.custom"
                 {{- end }}
+                {{- if .Values.redis.enabled }}
+                {{- include "pontoon.celery_redis_config" . | indent 16 }}
+                {{- end }}
                 {{- if .Values.extraEnvVars }}
                 {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 16 }}
                 {{- end }}
                 {{- include "pontoon.database_url" . | indent 16 }}
-                {{- include "pontoon.rabbitmq_url" . | indent 16 }}
               volumeMounts:
                 {{- if .Values.extraSettingsModule }}
                 - mountPath: "{{ .Values.pontoonHome }}/pontoon/settings/custom.py"

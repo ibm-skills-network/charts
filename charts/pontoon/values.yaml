@@ -92,7 +92,7 @@ syncProjectCronjob:
   concurrencyPolicy: Allow
   schedule: "@every 30m"
   suspend: false
-  successfulJobsHistoryLimit: 10
+  successfulJobsHistoryLimit: 4
   failedJobsHistoryLimit: 10
   podAnnotations: {}
   resources: {}
@@ -114,7 +114,7 @@ migrationJob:
   extraVolumeMounts: []
   extraVolumes: []
   # Add init containers to pod
-  initContainers: { }
+  initContainers: {}
   ## Command and args for running the container
   command: []
   args: []
@@ -221,3 +221,11 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+redis:
+  redisPassword: ""
+  enabled: true
+  externalUri: ""
+  masterName: "mymaster"
+  sentinel:
+    password: ""

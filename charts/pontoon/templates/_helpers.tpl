@@ -106,3 +106,26 @@ Usage:
         {{- tpl (.value | toYaml) .context }}
     {{- end }}
 {{- end -}}
+
+{{- define "pontoon.redisHostname" -}}
+  {{- printf "%s-redis.%s.svc.cluster.local" .Release.Name .Release.Name -}}
+{{- end -}}
+
+{{- define "pontoon.sentinelHost" -}}
+  {{- printf "sentinel://:%s@%s-redis.%s.svc.cluster.local:26379" .Values.redis.sentinel.password .Release.Name .Release.Name -}}
+{{- end -}}
+
+{{- define "pontoon.celery_redis_config" -}}
+{{- if .Values.redis.enabled }}
+- name: REDIS_PASSWORD
+  value: {{ .Values.redis.sentinel.password }}
+- name: REDIS_HOST
+  value: {{ include "pontoon.redisHostname" . }}
+- name: REDIS_PORT
+  value: {{ .Values.redis.sentinel.port | quote }}
+- name: REDIS_MASTER_NAME
+  value: {{ .Values.redis.masterName }}
+- name: BROKER_URL
+  value: {{ include "pontoon.sentinelHost" . }}
+{{- end }}
+{{- end }}
