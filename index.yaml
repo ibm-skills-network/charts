@@ -3,6 +3,42 @@ entries:
   pontoon:
   - apiVersion: v2
     appVersion: db4dd60
+    created: "2022-11-01T13:56:01.521580011Z"
+    dependencies:
+    - alias: postgres
+      condition: postgres.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 11.6.14
+    - condition: rabbitmq.enabled
+      name: rabbitmq
+      repository: https://charts.bitnami.com/bitnami
+      version: 10.1.12
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      version: 1.x.x
+    - alias: redis
+      condition: redis.enabled
+      name: redis-ha
+      repository: https://dandydeveloper.github.io/charts
+      version: 4.12.15
+    description: A Helm chart for Pontoon, a Mozilla's Localization Platform.
+    digest: a40c3f8b4d9922f543697687b77bf142f0059d561a0eab41f40916c5130f9ca8
+    home: https://github.com/mozilla/pontoon
+    icon: https://pontoon.mozilla.org/static/img/logo.svg
+    keywords:
+    - i18n
+    - pontoon
+    name: pontoon
+    sources:
+    - https://github.com/mozilla/pontoon
+    - https://github.com/ibm-skills-network/charts
+    type: application
+    urls:
+    - https://github.com/ibm-skills-network/charts/releases/download/pontoon-2.1.1/pontoon-2.1.1.tgz
+    version: 2.1.1
+  - apiVersion: v2
+    appVersion: db4dd60
     created: "2022-09-13T12:45:35.89125193Z"
     dependencies:
     - alias: postgres
