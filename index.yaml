@@ -1,5 +1,15 @@
 apiVersion: v1
 entries:
+  cert-manager-ibm-cis-webhook:
+  - apiVersion: v1
+    appVersion: "1.0"
+    created: "2023-12-15T00:03:04.700395767Z"
+    description: A Helm chart for Kubernetes
+    digest: f8ed54c5da5738e48f161cdec1289d41dceb6fd35368520cba940917678cc96c
+    name: cert-manager-ibm-cis-webhook
+    urls:
+    - https://ibm-skills-network.github.io/charts/cert-manager-ibm-cis-webhook-0.1.0.tgz
+    version: 0.1.0
   pontoon:
   - apiVersion: v2
     appVersion: db4dd60
@@ -354,4 +364,4 @@ entries:
     urls:
     - https://github.com/ibm-skills-network/charts/releases/download/pontoon-1.0.2/pontoon-1.0.2.tgz
     version: 1.0.2
-generated: "2020-12-16T04:55:13.898354338Z"
+generated: "2023-12-15T00:03:04.699873773Z"
