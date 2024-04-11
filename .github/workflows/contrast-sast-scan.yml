@@ -1,0 +1,12 @@
+name: Contrast SAST Scan
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  sast-scan:
+    uses: ibm-skills-network/.github/.github/workflows/contrast-sast-scan.yml@main
+    secrets: inherit
