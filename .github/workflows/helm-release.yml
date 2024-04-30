@@ -30,6 +30,6 @@ jobs:
           helm repo add dandydeveloper https://dandydeveloper.github.io/charts
 
       - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.1.0
+        uses: helm/chart-releaser-action@v1.6.0
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
