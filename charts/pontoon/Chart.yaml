@@ -22,7 +22,7 @@ dependencies:
     condition: postgres.enabled
     alias: postgres
   - name: rabbitmq
-    version: 10.1.12
+    version: 14.1.2
     repository: https://charts.bitnami.com/bitnami
     condition: rabbitmq.enabled
   - name: common
