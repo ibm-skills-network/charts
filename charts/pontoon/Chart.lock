@@ -4,12 +4,12 @@ dependencies:
   version: 11.6.14
 - name: rabbitmq
   repository: https://charts.bitnami.com/bitnami
-  version: 10.1.12
+  version: 10.3.9
 - name: common
   repository: https://charts.bitnami.com/bitnami
   version: 1.17.1
 - name: redis-ha
   repository: https://dandydeveloper.github.io/charts
   version: 4.12.15
-digest: sha256:648d2fdaf2848752781a163a738f995497e274c9e168cbe2bdc7a15271ad6a6b
-generated: "2022-10-07T16:54:35.880701-04:00"
+digest: sha256:31658e492fdf8083d0c6b3d62fe0739b874caba76bb04d69369675ee7ffd5919
+generated: "2025-03-17T17:32:46.885552079Z"
